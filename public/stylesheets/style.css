@@ -1,8 +1,56 @@
+* {
+  background-color: #111;
+  color: aquamarine;
+  font-family: 'Courier New', Courier, monospace;
+}
+
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 18px;
 }
 
 a {
   color: #00B7FF;
 }
+
+a:hover {
+  color: whitesmoke;
+}
+
+h1 {
+  color: whitesmoke;
+}
+
+h2{
+  color: whitesmoke;
+}
+
+h3 {
+  color: whitesmoke;
+}
+
+h4 {
+  color: whitesmoke;
+}
+
+strong {
+  color: whitesmoke;
+}
+
+
+::selection {
+  background-color: aquamarine;
+  color: black;
+}
+
+::-moz-selection {
+  background-color: aquamarine;
+  color: black;
+}
+
+a::selection {
+  background-color: aquamarine;
+  color: black;
+}
+
+

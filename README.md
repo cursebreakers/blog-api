@@ -1,41 +1,37 @@
 # Cursebreakers | Blog API
 
-v0.0.1
+v0.0.9 ![](/images/brkr-cloud.png)
+
+Powers the [React Dashboard]() and [Static Viewer]()
 
 ## Overview:
 
-## WORKING: *(In Progress)*
-
-v0.0.2 thru 0.0.9
-
-**Routes**
+### Routes
 - index.js
-- docs.js
 
-**Controllers**
-- Auth
-- Profiles/blogs
-- MongoDB
+### Controllers
+- auth.js
+- mongo.js
+- post.js
+- profile.js
 
-**Models**
-- User
-- Blog
+### Models
+- blogModel.js
+- userModel.js
 
-### Credits & Acknowledgements
+## Credits & Acknowledgements:
 
-#### Built with:
+### Built with:
 
 - Express
-- MongoDB
 - NPM
-  - Dependencies:
-    - bcryptjs
-    - passport
+- MongoDB
+- Glitch.com
 
-#### Author:
+### Author:
 
 - Esau [@Cursebreakers LLC](https://cursebreakers.net)
 
-#### Coursework:
+### Coursework:
 
 - The Odin Project - [Full Stack JavaScript](https://www.theodinproject.com/lessons/nodejs-blog-api)

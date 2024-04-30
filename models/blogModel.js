@@ -28,8 +28,12 @@ const blogSchema = new Schema({
 
 // Define a virtual field for the blog URL
 blogSchema.virtual('url').get(function() {
-  return '/profile/' + this.author.username; // Assuming `author` field is populated with the User object
+  return `/profile/${this.author.username}`;
 });
+
+postSchema.virtual('url').get(function() {
+  return '/posts/' + this._id;
+})
 
 // Create and export the Blog model
 const Blog = mongoose.model('Blog', blogSchema, 'blogs');

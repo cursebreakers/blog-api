@@ -1,6 +1,7 @@
 // Authentication control module - auth.js
 
 const asyncHandler = require('express-async-handler');
+const sanitizeHtml = require('sanitize-html');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
@@ -38,8 +39,14 @@ function generateToken(userId, username) {
 // POST new user
 const new_auth = asyncHandler(async (req, res, next) => {
     const { username, email, password, confirmPassword } = req.body;
+    console.log('Signing up:', req.body)
   
     try {
+        const sanitizedUsername = sanitizeHtml(username);
+        const sanitizedEmail = sanitizeHtml(email);
+        const sanitizedPassword = sanitizeHtml(password);
+        const sanitizedConfirmPassword = sanitizeHtml(confirmPassword);
+
         if (password !== confirmPassword) {
           return res.status(400).json({ message: 'Passwords do not match' });
         }
@@ -57,7 +64,7 @@ const new_auth = asyncHandler(async (req, res, next) => {
         await newUser.save();
 
         const newBlog = new Blog({
-          title: username,
+          title: username.toString(),
           author: newUser._id,
         });
         
@@ -65,8 +72,8 @@ const new_auth = asyncHandler(async (req, res, next) => {
 
         const defaultPost = {
             title: 'Hello, World!',
-            content: 'This is the default post for new users.',
-            username: username,
+            content: 'Hello, World!',
+            username: username.toString(),
             public: false,
         };
         
@@ -75,7 +82,7 @@ const new_auth = asyncHandler(async (req, res, next) => {
 
         const token = generateToken(newUser._id, newUser.username);
         console.log(newUser, newBlog);
-        res.status(201).json({ message: 'User created successfully', token });
+        res.status(201).json({ message: 'User created successfully', newUser, token });
 
     } catch (error) {
       console.error('Error creating user:', error);
@@ -88,26 +95,54 @@ const auth_in = asyncHandler(async (req, res, next) => {
     const { email, password } = req.body;
   
     try {
-      const user = await User.findOne({ email });
+        const sanitizedEmail = sanitizeHtml(email);
+        const sanitizedPassword = sanitizeHtml(password);
+
+        const user = await User.findOne({ email });
   
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
+        if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+        }
   
-      const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(password, user.password);
   
-      if (!isMatch) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-      }
+        if (!isMatch) {
+          return res.status(401).json({ message: 'Invalid credentials' });
+        }
   
-      const token = generateToken(user._id, user.username);
-      console.log(user);
-      res.status(200).json({ message: 'Login successful', token });
+        const token = generateToken(user._id, user.username);
+        console.log(user);
+        res.status(200).json({ message: 'Login successful', user, token });
     } catch (error) {
       console.error('Error logging in user:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
 });
 
+// GET to check if user is authenticated
+const auth_check = asyncHandler(async (req, res, next) => {
 
-module.exports = { passport, generateToken, new_auth, auth_in};
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    
+    jwt.verify(token, sessKey, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      const { username } = decoded;
+
+      res.status(200).json({ message: 'GOOD', token, username});
+    });
+  } catch (error) {
+    console.error('Error checking authentication:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+module.exports = { passport, generateToken, new_auth, auth_in, auth_check };

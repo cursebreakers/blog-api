@@ -10,6 +10,7 @@ const asyncHandler = require('express-async-handler');
 const passport = require('passport');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
+const cors = require('cors');
 
 const connectDB = require('./controllers/mongo');
 require('dotenv').config();
@@ -19,6 +20,8 @@ const sessKey = process.env.JWT_SECRET;
 const indexRouter = require('./routes/index');
 
 const app = express();
+
+app.use(cors());
 
 // Run basic network checks
 async function networkChecks() {
