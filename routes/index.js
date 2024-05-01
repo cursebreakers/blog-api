@@ -62,7 +62,6 @@ router.post('/posts/new', postControl.new_post)
 
 // POSTs to update or delete existing blog-post
 router.post('/posts/edit/:id', postControl.update_post)
-
 router.post('/posts/delete/:id', postControl.delete_post);
 
 // POST comment to blog post

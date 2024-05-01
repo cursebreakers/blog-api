@@ -40,8 +40,13 @@ function generateToken(userId, username) {
 const new_auth = asyncHandler(async (req, res, next) => {
     const { username, email, password, confirmPassword } = req.body;
     console.log('Signing up:', req.body)
-  
+   
     try {
+        const usernameRegex = /^[a-zA-Z0-9-]+$/;
+        if (!usernameRegex.test(username)) {
+            return res.status(400).json({ message: 'Invalid username format. Usernames must contain only letters, numbers, and hyphens' });
+        }
+
         const sanitizedUsername = sanitizeHtml(username);
         const sanitizedEmail = sanitizeHtml(email);
         const sanitizedPassword = sanitizeHtml(password);
@@ -50,21 +55,25 @@ const new_auth = asyncHandler(async (req, res, next) => {
         if (password !== confirmPassword) {
           return res.status(400).json({ message: 'Passwords do not match' });
         }
+
+        if (password.length < 8) {
+          return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+        }
     
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email: sanitizedEmail });
     
         if (existingUser) {
           return res.status(400).json({ message: 'User already exists with this email' });
         }
     
         // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(sanitizedPassword, 12);
     
-        const newUser = new User({ username, email, password: hashedPassword });
+        const newUser = new User({ username: sanitizedUsername, email: sanitizedEmail, password: hashedPassword });
         await newUser.save();
 
         const newBlog = new Blog({
-          title: username.toString(),
+          title: sanitizedUsername.toString(),
           author: newUser._id,
         });
         
@@ -73,7 +82,7 @@ const new_auth = asyncHandler(async (req, res, next) => {
         const defaultPost = {
             title: 'Hello, World!',
             content: 'Hello, World!',
-            username: username.toString(),
+            username: sanitizedUsername.toString(),
             public: false,
         };
         
@@ -98,13 +107,13 @@ const auth_in = asyncHandler(async (req, res, next) => {
         const sanitizedEmail = sanitizeHtml(email);
         const sanitizedPassword = sanitizeHtml(password);
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: sanitizedEmail });
   
         if (!user) {
           return res.status(404).json({ message: 'User not found' });
         }
   
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(sanitizedPassword, user.password);
   
         if (!isMatch) {
           return res.status(401).json({ message: 'Invalid credentials' });
@@ -135,9 +144,14 @@ const auth_check = asyncHandler(async (req, res, next) => {
         return res.status(401).json({ message: 'Unauthorized' });
       }
 
-      const { username } = decoded;
+      const { userId, username } = decoded;
+      if (!userId || !username) {
+        console.error('Invalid token payload');
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
 
-      res.status(200).json({ message: 'GOOD', token, username});
+      // Token is valid, send success response
+      res.status(200).json({ message: 'Token verified', token, userId, username });
     });
   } catch (error) {
     console.error('Error checking authentication:', error);
