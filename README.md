@@ -4,15 +4,7 @@ v0.0.9 ![](/images/brkr-cloud.png)
 
 Powers [React Dashboard](https://github.com/cursebreakers/blog-react-dashboard) and [Static Viewer](https://github.com/cursebreakers/blog-static-viewer)
 
-**WORKING: v0.1.0**
 
-- SECURITY
-  - HELMET, HTTPS,RATE LIMITING, ETC
-- DOCUMENTATION 
-  - README
-- DEPLYOMENT
-  - [Glitch.com](https://glitch.com/)
-  
 ## Overview:
 
 The two main endpoints are /profile and /posts. 
@@ -41,7 +33,7 @@ Posts are stored as arrays within the author's blog object. Comments are stored 
   - /posts/:id - GET
   - /posts/:keyword - GET
 
-  - /profile - GET
+- /profile - GET
   - /profile/:username/posts - GET
   - /profile/:username - GET and POST
 
